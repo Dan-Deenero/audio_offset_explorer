@@ -1,0 +1,204 @@
+{
+  "unified_reference": {
+    "reference_name": "T1 Krept & Konan Set_trimmed.wav",
+    "is_audio_only": true,
+    "trimmed_rel": null,
+    "duration": 395.008,
+    "analysis_audio_rel": "T1 Krept & Konan Set_trimmed.wav",
+    "metadata": {}
+  },
+  "generated_at": "2025-10-13T19:08:15Z",
+  "base_dir": "T1_Krept___Konan_Set_trimmed",
+  "items": [
+    {
+      "source_file": "1E4EE502-23BE-4EC0-8086-130AAA7E2862 saleisha rose.wav",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 45.2,
+      "final_offset_seconds": 174,
+      "signed_offset_seconds": -174,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 7.4289375,
+        "final": 7.0
+      }
+    },
+    {
+      "source_file": "4A7B48FF-1A6E-4522-A3B3-41B5D9DEB0DA saleisha rose.wav",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 52.2,
+      "final_offset_seconds": 283,
+      "signed_offset_seconds": -283,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 7.754020833333334,
+        "final": 6.0
+      }
+    },
+    {
+      "source_file": "F70683D5-7F1D-46AC-84F5-4FA1DF8AE480 saleisha rose.wav",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 28.3,
+      "final_offset_seconds": 197,
+      "signed_offset_seconds": -197,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 7.521833333333333,
+        "final": 7.0
+      }
+    },
+    {
+      "source_file": "IMG_0344 saleisha rose.wav",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 45.6,
+      "final_offset_seconds": -5,
+      "signed_offset_seconds": 5,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 6.2679375,
+        "final": 5.0
+      }
+    },
+    {
+      "source_file": "IMG_0345 saleisha rose.wav",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 34.6,
+      "final_offset_seconds": 5,
+      "signed_offset_seconds": -5,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 5.8499791666666665,
+        "final": 5.0
+      }
+    },
+    {
+      "source_file": "IMG_0346 saleisha rose.wav",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 55.2,
+      "final_offset_seconds": 13,
+      "signed_offset_seconds": -13,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 7.754020833333334,
+        "final": 6.0
+      }
+    },
+    {
+      "source_file": "IMG_0347 saleisha rose.wav",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 37.8,
+      "final_offset_seconds": 31,
+      "signed_offset_seconds": -31,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 14.278833333333333,
+        "final": 13.0
+      }
+    },
+    {
+      "source_file": "IMG_0361 saleisha rose.wav",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 48.6,
+      "final_offset_seconds": 313,
+      "signed_offset_seconds": -313,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 7.3360625,
+        "final": 7.0
+      }
+    },
+    {
+      "source_file": "IMG_0362 saleisha rose.wav",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 52.5,
+      "final_offset_seconds": 364,
+      "signed_offset_seconds": -364,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 6.871666666666667,
+        "final": 6.0
+      }
+    },
+    {
+      "source_file": "IMG_0363 saleisha rose.wav",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 71.3,
+      "final_offset_seconds": 373,
+      "signed_offset_seconds": -373,
+      "aligned_video_rel": null,
+      "aligned_audio_rel": null,
+      "metadata": {
+        "tags": [
+          "UGC"
+        ]
+      },
+      "durations": {
+        "original": 12.514125,
+        "final": 11.0
+      }
+    }
+  ]
+}
