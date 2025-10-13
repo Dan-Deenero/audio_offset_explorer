@@ -1,0 +1,404 @@
+{
+  "unified_reference": "T1 Krept & Konan Set.mov",
+  "generated_at": "2025-08-28T23:32:30Z",
+  "base_dir": "T1_Krept___Konan_Set",
+  "unified": {
+    "is_audio": false,
+    "trimmed_filename": "T1 Krept & Konan Set_trimmed.mov",
+    "trimmed_rel": "T1 Krept & Konan Set_trimmed.mov",
+    "trimmed_video_duration": 395.0,
+    "audio_filename": "T1 Krept & Konan Set_trimmed.wav",
+    "audio_rel": "T1 Krept & Konan Set_trimmed.wav",
+    "audio_duration": 395.008,
+    "metadata": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "items": [
+    {
+      "video_file": "1E4EE502-23BE-4EC0-8086-130AAA7E2862 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 45.9,
+      "final_offset_seconds": 174,
+      "signed_offset_seconds": -174,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "1E4EE502-23BE-4EC0-8086-130AAA7E2862 saleisha rose_aligned_off-174.mov",
+      "aligned_wav_rel": "1E4EE502-23BE-4EC0-8086-130AAA7E2862 saleisha rose_aligned_off-174.wav",
+      "durations": {
+        "original": 7.71517,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 720,
+        "height": 1280,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "4A7B48FF-1A6E-4522-A3B3-41B5D9DEB0DA saleisha rose.mov",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 54.7,
+      "final_offset_seconds": 283,
+      "signed_offset_seconds": -283,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "4A7B48FF-1A6E-4522-A3B3-41B5D9DEB0DA saleisha rose_aligned_off-283.mov",
+      "aligned_wav_rel": "4A7B48FF-1A6E-4522-A3B3-41B5D9DEB0DA saleisha rose_aligned_off-283.wav",
+      "durations": {
+        "original": 7.983583,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 720,
+        "height": 1280,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "93ECFE43-06ED-476C-9744-2AE74FDF1AAF saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 25.1,
+      "final_offset_seconds": 236,
+      "signed_offset_seconds": -236,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "93ECFE43-06ED-476C-9744-2AE74FDF1AAF saleisha rose_aligned_off-236.mov",
+      "aligned_wav_rel": "93ECFE43-06ED-476C-9744-2AE74FDF1AAF saleisha rose_aligned_off-236.wav",
+      "durations": {
+        "original": 4.567257,
+        "trimmed": null,
+        "final": 4
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 720,
+        "height": 1280,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "F70683D5-7F1D-46AC-84F5-4FA1DF8AE480 saleisha rose.mov",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 49.9,
+      "final_offset_seconds": 197,
+      "signed_offset_seconds": -197,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "F70683D5-7F1D-46AC-84F5-4FA1DF8AE480 saleisha rose_aligned_off-197.mov",
+      "aligned_wav_rel": "F70683D5-7F1D-46AC-84F5-4FA1DF8AE480 saleisha rose_aligned_off-197.wav",
+      "durations": {
+        "original": 7.82805,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 720,
+        "height": 1280,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0344 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 38.8,
+      "final_offset_seconds": -5,
+      "signed_offset_seconds": 5,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0344 saleisha rose_aligned_off+5.mov",
+      "aligned_wav_rel": "IMG_0344 saleisha rose_aligned_off+5.wav",
+      "durations": {
+        "original": 6.265011,
+        "trimmed": null,
+        "final": 5
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0345 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 30.5,
+      "final_offset_seconds": 5,
+      "signed_offset_seconds": -5,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0345 saleisha rose_aligned_off-5.mov",
+      "aligned_wav_rel": "IMG_0345 saleisha rose_aligned_off-5.wav",
+      "durations": {
+        "original": 5.833333,
+        "trimmed": null,
+        "final": 5
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0346 saleisha rose.mov",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 60.9,
+      "final_offset_seconds": 13,
+      "signed_offset_seconds": -13,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0346 saleisha rose_aligned_off-13.mov",
+      "aligned_wav_rel": "IMG_0346 saleisha rose_aligned_off-13.wav",
+      "durations": {
+        "original": 7.731678,
+        "trimmed": null,
+        "final": 6
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0347 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 37.0,
+      "final_offset_seconds": 31,
+      "signed_offset_seconds": -31,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0347 saleisha rose_aligned_off-31.mov",
+      "aligned_wav_rel": "IMG_0347 saleisha rose_aligned_off-31.wav",
+      "durations": {
+        "original": 14.263333,
+        "trimmed": null,
+        "final": 13
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 2160,
+        "height": 3840,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0352 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 36.4,
+      "final_offset_seconds": 105,
+      "signed_offset_seconds": -105,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0352 saleisha rose_aligned_off-105.mov",
+      "aligned_wav_rel": "IMG_0352 saleisha rose_aligned_off-105.wav",
+      "durations": {
+        "original": 7.9,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0361 saleisha rose.mov",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 61.5,
+      "final_offset_seconds": 313,
+      "signed_offset_seconds": -313,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0361 saleisha rose_aligned_off-313.mov",
+      "aligned_wav_rel": "IMG_0361 saleisha rose_aligned_off-313.wav",
+      "durations": {
+        "original": 7.331667,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0362 saleisha rose.mov",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 42.6,
+      "final_offset_seconds": 364,
+      "signed_offset_seconds": -364,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0362 saleisha rose_aligned_off-364.mov",
+      "aligned_wav_rel": "IMG_0362 saleisha rose_aligned_off-364.wav",
+      "durations": {
+        "original": 6.865,
+        "trimmed": null,
+        "final": 6
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 3840,
+        "height": 2160,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_0363 saleisha rose.mov",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 71.3,
+      "final_offset_seconds": 373,
+      "signed_offset_seconds": -373,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_0363 saleisha rose_aligned_off-373.mov",
+      "aligned_wav_rel": "IMG_0363 saleisha rose_aligned_off-373.wav",
+      "durations": {
+        "original": 12.498333,
+        "trimmed": null,
+        "final": 11
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 2160,
+        "height": 3840,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_5548 Zoe-Grace Lawson.MOV",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 50.5,
+      "final_offset_seconds": 19,
+      "signed_offset_seconds": -19,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_5548 Zoe-Grace Lawson_aligned_off-19.MOV",
+      "aligned_wav_rel": "IMG_5548 Zoe-Grace Lawson_aligned_off-19.wav",
+      "durations": {
+        "original": 26.436667,
+        "trimmed": null,
+        "final": 26
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 1920,
+        "height": 1080,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_5549 Zoe-Grace Lawson.MOV",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 54.1,
+      "final_offset_seconds": 69,
+      "signed_offset_seconds": -69,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_5549 Zoe-Grace Lawson_aligned_off-69.MOV",
+      "aligned_wav_rel": "IMG_5549 Zoe-Grace Lawson_aligned_off-69.wav",
+      "durations": {
+        "original": 8.4667,
+        "trimmed": null,
+        "final": 7
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 1080,
+        "height": 1920,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_5550 Zoe-Grace Lawson.MOV",
+      "decision": "yellow",
+      "accepted": false,
+      "confidence": 52.2,
+      "final_offset_seconds": 234,
+      "signed_offset_seconds": -234,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_5550 Zoe-Grace Lawson_aligned_off-234.MOV",
+      "aligned_wav_rel": "IMG_5550 Zoe-Grace Lawson_aligned_off-234.wav",
+      "durations": {
+        "original": 12.3017,
+        "trimmed": null,
+        "final": 12
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 1920,
+        "height": 1080,
+        "tags": [
+          "UGC"
+        ]
+      }
+    },
+    {
+      "video_file": "IMG_5551 Zoe-Grace Lawson.MOV",
+      "decision": "green",
+      "accepted": true,
+      "confidence": 62.9,
+      "final_offset_seconds": 292,
+      "signed_offset_seconds": -292,
+      "trimmed_video_rel": null,
+      "aligned_video_rel": "IMG_5551 Zoe-Grace Lawson_aligned_off-292.MOV",
+      "aligned_wav_rel": "IMG_5551 Zoe-Grace Lawson_aligned_off-292.wav",
+      "durations": {
+        "original": 16.6667,
+        "trimmed": null,
+        "final": 16
+      },
+      "sanity_warning": false,
+      "metadata": {
+        "width": 1920,
+        "height": 1080,
+        "tags": [
+          "UGC"
+        ]
+      }
+    }
+  ]
+}
