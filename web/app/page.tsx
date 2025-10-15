@@ -1,103 +1,169 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import { AnalysisResponse, AnalysisResult } from "@/types/analysis";
+import ResultsTable from "@/components/ResultsTable";
+import FileUpload from "@/components/FileUpload";
+import { downloadJSON, downloadCSV } from "@/utils/exports";
+import AudioUploader from "@/components/AudioUploader";
+
+export default function Page() {
+  const [referenceFile, setReferenceFile] = useState<File | null>(null);
+  const [candidateFiles, setCandidateFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<AnalysisResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const [filterDecision, setFilterDecision] = useState<"all" | "green" | "yellow" | "red">("all");
+  const [minConfidence, setMinConfidence] = useState<number>(0);
+
+  const runAnalysis = async () => {
+  setError(null);
+  if (!referenceFile || candidateFiles.length === 0) {
+    setError("Please select a reference and at least one candidate file.");
+    return;
+  }
+
+  setLoading(true);
+  setResponse(null);
+  setLogs([]);
+
+  // 🔸 Start listening to live logs before uploading
+  const eventSource = new EventSource("/api/analyze/stream");
+  eventSource.onmessage = (event) => {
+    setLogs((prev) => [...prev, event.data]);
+  };
+  eventSource.onerror = () => {
+    console.warn("Log stream error");
+    eventSource.close();
+  };
+
+  try {
+    const form = new FormData();
+    form.append("reference", referenceFile);
+    candidateFiles.forEach((file) => form.append("candidates", file));
+
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      body: form,
+    });
+
+    const json = await res.json();
+    eventSource.close();
+
+    if (!res.ok) {
+      setError(json?.error || "Server error");
+      if (json?.logs) setLogs(json.logs);
+      return;
+    }
+
+    setResponse(json as AnalysisResponse);
+    if (json.logs) setLogs((prev) => [...prev, ...json.logs]);
+  } catch (e: any) {
+    setError(e?.message || "Network error");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const resetAll = () => {
+    setReferenceFile(null);
+    setCandidateFiles([]);
+    setResponse(null);
+    setError(null);
+    setLogs([]);
+  };
+
+  const filteredResults = (response?.results ?? []).filter((r: AnalysisResult) => {
+    if (filterDecision !== "all" && r.decision !== filterDecision) return false;
+    if (r.confidence < minConfidence) return false;
+    return true;
+  });
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <h1 className="text-2xl font-semibold">Audio Offset Explorer</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <AudioUploader referenceFile={referenceFile}
+        setReferenceFile={setReferenceFile}
+        candidateFiles={candidateFiles}
+        setCandidateFiles={setCandidateFiles} />
+
+      <div className="flex justify-center gap-3">
+        {loading ? (
+          <button className="btn rounded" disabled>
+            <span className="loading loading-spinner"></span>
+            Running analysis…
+          </button>
+        ) : (
+          <button className="btn btn-primary text-black rounded" onClick={runAnalysis}>
+            Run Analysis
+          </button>
+        )}
+        <button className="btn btn-outline rounded" onClick={resetAll}>
+          Reset
+        </button>
+      </div>
+
+      {response && (
+        <div className="text-sm text-gray-600">
+          Last run: {new Date(response.generatedAt).toLocaleString()}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      )}
+
+      {error && (
+        <div className="toast toast-top toast-center">
+          <div className="alert alert-error">
+            <span>{error}</span>
+          </div>
+        </div>
+      )}
+
+      {response && (
+        <section className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-lg font-semibold">
+              Results ({filteredResults.length}/{response?.total ?? 0})
+            </h2>
+            <div className="ml-auto flex gap-2">
+              <button
+                className="px-3 py-1 btn border rounded"
+                onClick={() => downloadJSON(response, `${response.reference}_results.json`)}
+              >
+                Export JSON
+              </button>
+              <button
+                className="px-3 py-1 btn border rounded"
+                onClick={() => downloadCSV(response.results, `${response.reference}_results.csv`)}
+              >
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <ResultsTable
+            results={filteredResults}
+            referenceFile={referenceFile}
+            onPlayCandidate={(blobUrl) => {
+              const audio = new Audio(blobUrl);
+              audio.play().catch(() => { });
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </section>
+      )}
+
+      <section className="mb-6 p-4 border rounded bg-white">
+        <h3 className="font-medium mb-2">Server logs (last lines)</h3>
+        <div className="bg-slate-50 p-2 rounded h-40 overflow-auto text-xs">
+          {logs.length === 0 ? (
+            <div className="text-gray-500">No logs yet.</div>
+          ) : (
+            logs.map((l, i) => <div key={i}>{l}</div>)
+          )}
+        </div>
+      </section>
     </div>
   );
 }

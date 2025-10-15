@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Video/Audio Match Against Multiple Unified References (Production-Ready Preparation Engine)
-Complete workflow: Trim inputs → Extract audio (if video) → Match → Create ABR renditions for all outputs.
+Video Match Against Multiple Unified References (Production-Ready Preparation Engine)
+Complete workflow: Trim videos → Extract audio → Match → Create ABR renditions for all outputs.
 """
 
 import argparse
@@ -15,6 +15,8 @@ import math
 from pathlib import Path
 from typing import Optional, List, Dict, Tuple, Set, Union
 from fractions import Fraction
+sys.stdout.reconfigure(encoding='utf-8')
+
 
 import ffmpeg
 
@@ -63,7 +65,7 @@ def write_compact_offsets_report(
                 })
 
         item_data = {
-            "source_file": r.get("source_file"),
+            "video_file": r.get("video_file"),
             "decision": r.get("decision"),
             "accepted": r.get("decision") == "green",
             "confidence": round(float(r.get("confidence", 0.0)), 1),
@@ -78,7 +80,7 @@ def write_compact_offsets_report(
             item_data["durations"] = r["durations"]
         if "sanity_warning" in r:
             item_data["sanity_warning"] = r["sanity_warning"]
-
+        
         items.append(item_data)
 
     unified_renditions_list = []
@@ -250,8 +252,8 @@ def get_audio_duration(file_path: str) -> float:
         return 0.0
 
 
-def discover_video_files(directory: str, pattern: str = "*.*", recursive: bool = False) -> List[str]:
-    VIDEO_EXTENSIONS = {'.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv', '.m4v', '.3gp', '.3g2', '.mpg', '.mpeg', '.m2v', '.divx', '.xvid', '.asf', '.rm', '.rmvb', '.vob', '.ogv', '.f4v', '.mts', '.m2ts', '.ts'}
+def discover_media_files(directory: str, pattern: str = "*.*", recursive: bool = False) -> List[str]:
+    MEDIA_EXTENSIONS = {'.wav', '.mp3', '.flac', '.aac', '.ogg', '.m4a'}
     if not os.path.exists(directory):
         raise FileNotFoundError(f"Directory not found: {directory}")
     if not os.path.isdir(directory):
@@ -259,21 +261,7 @@ def discover_video_files(directory: str, pattern: str = "*.*", recursive: bool =
     pattern_path = os.path.join(directory, "**", pattern) if recursive else os.path.join(directory, pattern)
     candidate_files = glob.glob(pattern_path, recursive=recursive)
     if pattern == "*.*":
-        candidate_files = [f for f in candidate_files if Path(f).suffix.lower() in VIDEO_EXTENSIONS]
-    if not candidate_files:
-        raise ValueError(f"No video files found matching pattern in: {directory}")
-    return sorted(candidate_files)
-
-def discover_audio_files(directory: str, pattern: str = "*.*", recursive: bool = False) -> List[str]:
-    AUDIO_EXTENSIONS = {'.wav', '.mp3', '.flac', '.m4a', '.aac', '.ogg', '.wma'}
-    if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory not found: {directory}")
-    if not os.path.isdir(directory):
-        raise NotADirectoryError(f"Path is not a directory: {directory}")
-    pattern_path = os.path.join(directory, "**", pattern) if recursive else os.path.join(directory, pattern)
-    candidate_files = glob.glob(pattern_path, recursive=recursive)
-    if pattern == "*.*":
-        candidate_files = [f for f in candidate_files if Path(f).suffix.lower() in AUDIO_EXTENSIONS]
+        candidate_files = [f for f in candidate_files if Path(f).suffix.lower() in MEDIA_EXTENSIONS]
     if not candidate_files:
         raise ValueError(f"No audio files found matching pattern in: {directory}")
     return sorted(candidate_files)
@@ -299,7 +287,7 @@ def is_audio_file(file_path: str) -> bool:
     return Path(file_path).suffix.lower() in AUDIO_EXTENSIONS
 
 
-def check_ffmpeg():
+def check_ffmpeg_python():
     try:
         subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True, timeout=5)
     except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
@@ -325,27 +313,6 @@ def choose_g_value(fps_float: Optional[float], default_fps: float = 30.0) -> int
 
 def choose_r_g(fps_float: Optional[float], fps_str: Optional[str], default_fps: float = 30.0) -> Tuple[Union[str, float], int]:
     return choose_r_value(fps_float, fps_str, default_fps), choose_g_value(fps_float, default_fps)
-
-
-def trim_audio_precise(input_path: str, output_path: str, start_offset: float, target_duration: float, verbose: bool) -> bool:
-    """Trims an audio file using FFmpeg."""
-    if verbose:
-        print(f"🔄 Trimming audio {Path(input_path).name}...")
-    try:
-        out_dir = os.path.dirname(output_path)
-        if out_dir:
-            os.makedirs(out_dir, exist_ok=True)
-        (
-            ffmpeg.input(input_path, ss=start_offset, t=target_duration)
-            .output(output_path, acodec='copy')
-            .overwrite_output()
-            .run(quiet=not verbose, cmd='ffmpeg')
-        )
-        return True
-    except Exception as e:
-        if verbose:
-            print(f"   ❌ FFmpeg error during audio trim: {e}")
-        return False
 
 
 def trim_video_precise(input_path: str, output_path: str, start_offset: float = 0.0, target_duration: Optional[float] = None, method: str = "floor") -> bool:
@@ -510,376 +477,111 @@ def progressive_match(analyzer: TrackAnalyser, new_track: str, unified_track: st
 # Core Processing
 # -----------------------
 def process_single_audio(audio_path: str, unified_track: str, args: argparse.Namespace, *, processed_dir: str) -> Dict:
-    audio_name, audio_stem = Path(audio_path).name, Path(audio_path).stem
+    audio_name = Path(audio_path).name
 
     try:
-        original_duration = get_audio_duration(audio_path)
-        if not original_duration:
-            return {'source_file': audio_name, 'status': 'failed', 'error': 'Could not read audio info'}
-
-        # Audio file is used directly for analysis
-        analysis_audio_path = audio_path
-        track_duration = original_duration
-        unified_duration = get_audio_duration(unified_track)
-
-        analyzer = TrackAnalyser(target_sr=args.target_sr)
-        if args.progressive:
-            result, level_used = progressive_match(analyzer, analysis_audio_path, unified_track, [args.standard_threshold, args.fast_threshold], args.verbose)
-        else:
-            result = analyzer.calculate_pairwise_offset(analysis_audio_path, unified_track, peaks_per_second=args.peaks_per_second)
-            level_used = f"Single ({args.peaks_per_second} peaks/sec)"
-
-        if result.error:
-            return {'source_file': audio_name, 'status': 'failed', 'error': result.error, 'confidence': 0}
-
-        raw_offset, target_offset = result.offset_seconds, math.floor(result.offset_seconds)
-        start_trim = raw_offset - target_offset
-        target_duration = math.floor(original_duration - start_trim)
-
-        if target_duration < 1:
-            return {'source_file': audio_name, 'status': 'failed', 'error': 'Clip too short after alignment', 'confidence': result.confidence}
-
-        sanity_check = check_overlap_sanity(raw_offset, track_duration, unified_duration, args.verbose)
-        adjusted_confidence = result.confidence
-        if not sanity_check['sanity_check_passed']:
-            adjusted_confidence *= 0.5
-            if args.verbose:
-                print(f"    ⚠️ Sanity check failed! Confidence adjusted: {result.confidence:.1f}% → {adjusted_confidence:.1f}%")
-
-        if track_duration < SHORT_SEC:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 25.0, 47.5, 5, 8, 1.25
-        elif track_duration >= LONG_SEC:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 30.0, 60.0, 10, 15, 1.35
-        else:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 27.5, 52.5, 7, 12, 1.30
-
-        dominance_ratio = None
-        try:
-            if hasattr(result, "candidates") and result.candidates:
-                counts = sorted((int(c.get("count", 0)) for c in result.candidates), reverse=True)
-                if len(counts) >= 2:
-                    dominance_ratio = counts[0] / max(1, counts[1])
-        except Exception:
-            dominance_ratio = None
-
-        total_matches = getattr(result, "total_matches", None)
-        try:
-            total_matches = int(total_matches) if total_matches is not None else None
-        except Exception:
-            total_matches = None
-
-        if (not sanity_check['sanity_check_passed']) or (adjusted_confidence < low_conf) or (total_matches is not None and total_matches < min_matches_red):
-            decision = "red"
-        elif (adjusted_confidence >= accept_conf and (total_matches is None or total_matches >= min_matches_green) and (dominance_ratio is None or dominance_ratio >= dom_thresh)):
-            decision = "green"
-        else:
-            decision = "yellow"
-
-        aligned_audio_file = None
-        if args.export_audio:
-            aligned_stem_name = f"{audio_stem}_aligned_off{target_offset:+d}"
-            export_name = f"{aligned_stem_name}.{args.format}"
-            aligned_audio_path = os.path.join(processed_dir, export_name)
-            if trim_audio_precise(audio_path, aligned_audio_path, start_trim, target_duration, args.verbose):
-                 aligned_audio_file = os.path.basename(aligned_audio_path)
-            else:
-                 return {'source_file': audio_name, 'status': 'failed', 'error': 'Audio alignment trim failed', 'confidence': result.confidence}
-
-        durations_block = {
-            "original": float(original_duration),
-            "final": float(target_duration),
-        }
-
-        return {
-            'source_file': audio_name,
-            'status': 'success',
-            'decision': decision,
-            'confidence': adjusted_confidence,
-            'raw_offset_seconds': raw_offset,
-            'final_offset_seconds': target_offset,
-            'aligned_renditions': None, # No video renditions for audio files
-            'aligned_video_file': None,
-            'aligned_audio_file': aligned_audio_file,
-            'tags': ["UGC"],
-            'level_used': level_used,
-            'durations': durations_block,
-        }
-    except Exception as e:
-        return {'source_file': audio_name, 'status': 'failed', 'error': str(e), 'confidence': 0}
-
-
-def process_single_video(video_path: str, unified_track: str, args: argparse.Namespace, *, processed_dir: str) -> Dict:
-    video_name, video_stem = Path(video_path).name, Path(video_path).stem
-
-    try:
-        original_duration, _, _, original_height, _ = get_video_info(video_path)
-        if not original_duration:
-            return {'source_file': video_name, 'status': 'failed', 'error': 'Could not read video info'}
-
-        # Extract ANALYSIS audio as 44.1k mono 16-bit WAV (explicit)
-        audio_path = os.path.join(processed_dir, f"{video_stem}_analysis.wav")
-        if not extract_audio_from_video(video_path, audio_path, 'wav', args.sample_rate or 44100, None, 1, args.verbose):
-            return {'source_file': video_name, 'status': 'failed', 'error': 'Audio extraction failed'}
-
         track_duration = get_audio_duration(audio_path)
         unified_duration = get_audio_duration(unified_track)
 
         analyzer = TrackAnalyser(target_sr=args.target_sr)
         if args.progressive:
-            result, level_used = progressive_match(analyzer, audio_path, unified_track, [args.standard_threshold, args.fast_threshold], args.verbose)
+            result, level_used = progressive_match(analyzer, audio_path, unified_track,
+                                                   [args.standard_threshold, args.fast_threshold],
+                                                   args.verbose)
         else:
             result = analyzer.calculate_pairwise_offset(audio_path, unified_track, peaks_per_second=args.peaks_per_second)
             level_used = f"Single ({args.peaks_per_second} peaks/sec)"
 
         if result.error:
-            if args.cleanup_audio:
-                os.remove(audio_path)
-            return {'source_file': video_name, 'status': 'failed', 'error': result.error, 'confidence': 0}
+            return {'audio_file': audio_name, 'status': 'failed', 'error': result.error, 'confidence': 0}
 
-        raw_offset, target_offset = result.offset_seconds, math.floor(result.offset_seconds)
-        start_trim = raw_offset - target_offset
-        target_duration = math.floor(original_duration - start_trim)
-
-        if target_duration < 1:
-            if args.cleanup_audio:
-                os.remove(audio_path)
-            return {'source_file': video_name, 'status': 'failed', 'error': 'Clip too short after alignment', 'confidence': result.confidence}
-
+        raw_offset = result.offset_seconds
         sanity_check = check_overlap_sanity(raw_offset, track_duration, unified_duration, args.verbose)
-        adjusted_confidence = result.confidence
-        if not sanity_check['sanity_check_passed']:
-            adjusted_confidence *= 0.5
-            if args.verbose:
-                print(f"    ⚠️ Sanity check failed! Confidence adjusted: {result.confidence:.1f}% → {adjusted_confidence:.1f}%")
+        confidence = result.confidence if sanity_check['sanity_check_passed'] else result.confidence * 0.5
 
-        if track_duration < SHORT_SEC:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 25.0, 47.5, 5, 8, 1.25
-        elif track_duration >= LONG_SEC:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 30.0, 60.0, 10, 15, 1.35
-        else:
-            low_conf, accept_conf, min_matches_red, min_matches_green, dom_thresh = 27.5, 52.5, 7, 12, 1.30
-
-        dominance_ratio = None
-        try:
-            if hasattr(result, "candidates") and result.candidates:
-                counts = sorted((int(c.get("count", 0)) for c in result.candidates), reverse=True)
-                if len(counts) >= 2:
-                    dominance_ratio = counts[0] / max(1, counts[1])
-        except Exception:
-            dominance_ratio = None
-
-        total_matches = getattr(result, "total_matches", None)
-        try:
-            total_matches = int(total_matches) if total_matches is not None else None
-        except Exception:
-            total_matches = None
-
-        if (not sanity_check['sanity_check_passed']) or (adjusted_confidence < low_conf) or (total_matches is not None and total_matches < min_matches_red):
+        # basic decision logic
+        if confidence < 30:
             decision = "red"
-        elif (adjusted_confidence >= accept_conf and (total_matches is None or total_matches >= min_matches_green) and (dominance_ratio is None or dominance_ratio >= dom_thresh)):
+        elif confidence >= 60:
             decision = "green"
         else:
             decision = "yellow"
 
-        aligned_renditions, aligned_video_file = None, None
-
-        if args.output_resolutions:
-            aligned_stem = os.path.join(processed_dir, f"{video_stem}_aligned_off{target_offset:+d}")
-            if original_height:
-                resolutions_to_create = {r for r in args.output_resolutions if r <= original_height}
-            else:
-                resolutions_to_create = set(args.output_resolutions)
-            if not resolutions_to_create:
-                resolutions_to_create.add(min(args.output_resolutions))
-            aligned_renditions = trim_and_create_renditions(video_path, aligned_stem, start_trim, target_duration, resolutions_to_create, args.verbose)
-        else:
-            aligned_video_file = f"{video_stem}_aligned_off{target_offset:+d}{Path(video_path).suffix}"
-            aligned_video_path = os.path.join(processed_dir, aligned_video_file)
-            if not trim_video_precise(video_path, aligned_video_path, start_trim, target_duration):
-                if args.cleanup_audio:
-                    os.remove(audio_path)
-                return {'source_file': video_name, 'status': 'failed', 'error': 'Video alignment trim failed', 'confidence': result.confidence}
-
-        if not aligned_renditions and not aligned_video_file:
-            if args.cleanup_audio:
-                os.remove(audio_path)
-            return {'source_file': video_name, 'status': 'failed', 'error': 'Video output creation failed', 'confidence': result.confidence}
-
-        aligned_audio_path = None
-        if args.export_audio:
-            source_for_audio, aligned_stem_name = "", ""
-            if aligned_renditions:
-                highest_res = str(max(int(h) for h in aligned_renditions.keys()))
-                source_for_audio = os.path.join(processed_dir, aligned_renditions[highest_res]['file'])
-                aligned_stem_name = Path(aligned_renditions[highest_res]['file']).stem
-            elif aligned_video_file:
-                source_for_audio = os.path.join(processed_dir, aligned_video_file)
-                aligned_stem_name = Path(aligned_video_file).stem
-
-            if source_for_audio:
-                export_name = f"{aligned_stem_name}.{args.format}"
-                aligned_audio_path = os.path.join(processed_dir, export_name)
-                # Final export uses the user-specified format
-                extract_audio_from_video(source_for_audio, aligned_audio_path, args.format, args.sample_rate, args.bitrate, args.channels, args.verbose)
-
-        if args.cleanup_audio:
-            os.remove(audio_path)
-
-        durations_block = {
-            "original": float(original_duration),
-            "final": float(target_duration),
-        }
-
         return {
-            'source_file': video_name,
+            'audio_file': audio_name,
             'status': 'success',
             'decision': decision,
-            'confidence': adjusted_confidence,
+            'confidence': confidence,
             'raw_offset_seconds': raw_offset,
-            'final_offset_seconds': target_offset,
-            'aligned_renditions': aligned_renditions,
-            'aligned_video_file': aligned_video_file,
-            'aligned_audio_file': os.path.basename(aligned_audio_path) if aligned_audio_path else None,
-            'tags': ["UGC"],
-            'level_used': level_used,
-            'durations': durations_block,
+            'final_offset_seconds': int(round(raw_offset)),
+            'tags': ["AUDIO"],
+            'durations': {"original": track_duration, "reference": unified_duration}
         }
     except Exception as e:
-        return {'source_file': video_name, 'status': 'failed', 'error': str(e), 'confidence': 0}
+        return {'audio_file': audio_name, 'status': 'failed', 'error': str(e), 'confidence': 0}
 
 
-def display_batch_results(results: List[Dict], processing_mode: str):
+
+def display_video_batch_results(results: List[Dict]):
     successful = [r for r in results if r['status'] == 'success']
     failed = [r for r in results if r['status'] == 'failed']
-    print(f"\n📊 Batch Results Summary:")
-    print(f"   Processed: {len(results)} {processing_mode}s | Successful: {len(successful)} | Failed: {len(failed)}")
+    print("\n📊 Video Batch Results Summary:")
+    print(f"   Processed: {len(results)} videos | Successful: {len(successful)} | Failed: {len(failed)}")
     if successful:
         print("\n✅ Successful Matches:")
-        print(f"{'Input File':<40} {'Offset':<10} {'Confidence':<12} {'Status'}")
+        print(f"{'Video File':<40} {'Offset':<10} {'Confidence':<12} {'Status'}")
         print("-" * 80)
         for r in successful:
-            file_short = r['source_file'][:38] + ".." if len(r['source_file']) > 40 else r['source_file']
+            video_short = r['video_file'][:38] + ".." if len(r['video_file']) > 40 else r['video_file']
             status_display = f"{r['decision'].upper()}"
-            print(f"{file_short:<40} {r['final_offset_seconds']:>+7.0f}s {r['confidence']:>8.1f}%   {status_display}")
+            print(f"{video_short:<40} {r['final_offset_seconds']:>+7.0f}s {r['confidence']:>8.1f}%   {status_display}")
     if failed:
-        print("\n❌ Failed Files:")
+        print("\n❌ Failed Videos:")
         for r in failed:
-            print(f"   {r['source_file']}: {r['error']}")
+            print(f"   {r['video_file']}: {r['error']}")
 
 
-def process_against_single_unified(input_files: List[str], unified_ref: str, processing_mode: str, args: argparse.Namespace) -> Dict:
+def process_against_single_unified_audio(audio_files: List[str], unified_ref: str, args: argparse.Namespace) -> Dict:
     unified_name = Path(unified_ref).name
-    print(f"\n🎯 Processing against unified reference: {unified_name}")
+    print(f"\n🎯 Processing against unified reference (AUDIO): {unified_name}")
     print("=" * 60)
 
-    is_unified_audio = is_audio_file(unified_ref)
-    unified_dirname = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in Path(unified_name).stem)
-    processed_dir = os.path.join(args.output_dir, unified_dirname)
+    processed_dir = os.path.join(args.output_dir, Path(unified_name).stem)
     os.makedirs(processed_dir, exist_ok=True)
 
-    unified_renditions, unified_trimmed_duration = None, 0.0
-    analysis_audio_name = f"{Path(unified_name).stem}_analysis_audio.wav"
-    unified_track_path = os.path.join(processed_dir, analysis_audio_name)
-
-    if not is_unified_audio:
-        print(f"\nPreparing unified video reference: {unified_name}...")
-        unified_duration, _, _, unified_height, _ = get_video_info(unified_ref)
-        if not unified_duration:
-            return {'status': 'failed', 'error': f'Could not read unified reference info: {unified_name}'}
-
-        unified_trimmed_duration = math.floor(unified_duration)
-        trimmed_unified_path = os.path.join(processed_dir, f"{Path(unified_name).stem}_trimmed.mp4")
-        if not trim_video_precise(unified_ref, trimmed_unified_path, 0.0, unified_trimmed_duration):
-            return {'status': 'failed', 'error': f'Failed to pre-trim unified reference: {unified_name}'}
-
-        if args.output_resolutions:
-            unified_stem = os.path.join(processed_dir, f"{Path(unified_name).stem}_trimmed_unified")
-            if unified_height:
-                unified_resolutions = {r for r in args.output_resolutions if r <= unified_height}
-            else:
-                unified_resolutions = set(args.output_resolutions)
-            if not unified_resolutions:
-                unified_resolutions.add(min(args.output_resolutions))
-            unified_renditions = trim_and_create_renditions(trimmed_unified_path, unified_stem, 0.0, unified_trimmed_duration, unified_resolutions, args.verbose)
-            if not unified_renditions:
-                return {'status': 'failed', 'error': f'Failed to create renditions for unified reference: {unified_name}'}
-
-        # Extract analysis audio for unified: explicit 44.1k mono WAV
-        if not extract_audio_from_video(trimmed_unified_path, unified_track_path, 'wav', args.sample_rate or 44100, None, 1, args.verbose):
-            return {'status': 'failed', 'error': f'Failed to extract audio from trimmed unified reference: {unified_name}'}
-        if args.cleanup_trimmed:
-            os.remove(trimmed_unified_path)
-
-    else:  # Audio only unified
-        unified_trimmed_duration = get_audio_duration(unified_ref)
-        unified_track_path = unified_ref
-        analysis_audio_name = unified_name
-
-    results: List[Dict] = []
-    for i, item_file in enumerate(input_files, 1):
-        print(f"\n[{i}/{len(input_files)}] Processing: {Path(item_file).name}")
-        if processing_mode == 'video':
-            r = process_single_video(item_file, unified_track_path, args, processed_dir=processed_dir)
-        else: # audio
-            r = process_single_audio(item_file, unified_track_path, args, processed_dir=processed_dir)
-
+    results = []
+    for i, audio_file in enumerate(audio_files, 1):
+        print(f"\n[{i}/{len(audio_files)}] Processing: {Path(audio_file).name}")
+        r = process_single_audio(audio_file, unified_ref, args, processed_dir=processed_dir)
         results.append(r)
         if r['status'] == 'failed':
             print(f"   ❌ {r['error']}")
 
-    display_batch_results(results, processing_mode)
+    # save compact report (reuse write_compact_offsets_report or make a simpler one)
     compact_path = write_compact_offsets_report(
-        processed_dir, unified_name, results, unified_renditions,
-        unified_trimmed_duration, analysis_audio_name, args, is_unified_audio
+        processed_dir, unified_name, results, None,
+        get_audio_duration(unified_ref), unified_name, args, True
     )
-    print(f"\n📄 Compact report generated: {compact_path}")
+    print(f"📄 Compact report generated: {compact_path}")
 
-    batch_result = {
-        'unified_reference': {
-            "reference_name": unified_name, "is_audio_only": is_unified_audio,
-            "trimmed_rel": unified_renditions, "duration": unified_trimmed_duration,
-            "analysis_audio_rel": analysis_audio_name, "metadata": {}
-        },
-        'results': results,
-        'summary': {
-            'total': len(results),
-            'successful': len([r for r in results if r['status'] == 'success']),
-            'failed': len([r for r in results if r['status'] == 'failed']),
-            'green': len([r for r in results if r.get('decision') == 'green']),
-            'yellow': len([r for r in results if r.get('decision') == 'yellow']),
-            'red': len([r for r in results if r.get('decision') == 'red']),
-        }
-    }
-    detailed_path = export_batch_results(batch_result, args.output_dir, args)
-    print(f"📄 Detailed report generated: {detailed_path}")
-
-    if args.cleanup_unified and unified_track_path != unified_ref:
-        os.remove(unified_track_path)
-    return {'status': 'success'}
 
 # ----------------
 # CLI Entrypoint
 # ----------------
 def main():
-    parser = argparse.ArgumentParser(description="Match videos or audios and create ABR renditions.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    
-    input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument('--video-dir', '-d', type=str, help='Directory of videos to process.')
-    input_group.add_argument('--audio-dir', type=str, help='Directory of audio files to process.')
-
-    parser.add_argument('--pattern', default='*.*', help='File pattern for file search.')
+    parser = argparse.ArgumentParser(description="Match videos and create ABR renditions.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--video-dir', '-d', type=str, required=True, help='Directory of videos to process.')
+    parser.add_argument('--pattern', default='*.*', help='File pattern for video search.')
     parser.add_argument('--recursive', '-r', action='store_true', help='Search subdirectories recursively.')
-    
     unified_group = parser.add_mutually_exclusive_group(required=True)
     unified_group.add_argument('--video-unified', help='Single video file as the master reference.')
     unified_group.add_argument('--unified-dir', help='Directory of master reference files.')
     unified_group.add_argument('--unified', help='Single pre-existing unified audio track.')
-    
     parser.add_argument('--unified-pattern', default='*.*', help='Pattern for unified reference search.')
     parser.add_argument('--unified-recursive', action='store_true', help='Search unified directory recursively.')
-    parser.add_argument('--output-dir', '-o', default='processed_files', help='Root output directory.')
+    parser.add_argument('--output-dir', '-o', default='processed_videos', help='Root output directory.')
     parser.add_argument('--export-prefix', type=str, help='Prefix for exported result files.')
-    parser.add_argument('--output-resolutions', type=lambda s: {int(r) for r in s.split(',') if r.strip()}, default=None, help='Enable ABR mode for video. Comma-separated list of heights (e.g., 1080,720). If not set, original single-file trim is used.')
+    parser.add_argument('--output-resolutions', type=lambda s: {int(r) for r in s.split(',') if r.strip()}, default=None, help='Enable ABR mode. Comma-separated list of heights (e.g., 1080,720). If not set, original single-file trim is used.')
     parser.add_argument('--reject-positive-offsets', action='store_true', help='Exclude results with positive raw offsets from the compact JSON report.')
     parser.add_argument('--export-audio', action='store_true', help='Export a final aligned audio file in the specified --format.')
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output.')
@@ -904,22 +606,14 @@ def main():
     if args.cleanup_all:
         args.cleanup_audio, args.cleanup_unified, args.cleanup_trimmed = True, True, True
 
-    check_ffmpeg()
+    check_ffmpeg_python()
 
     try:
-        if args.video_dir:
-            processing_mode = 'video'
-            input_files = discover_video_files(args.video_dir, args.pattern, args.recursive)
-            print(f"🎥 Found {len(input_files)} video files to process.")
-        elif args.audio_dir:
-            processing_mode = 'audio'
-            input_files = discover_audio_files(args.audio_dir, args.pattern, args.recursive)
-            print(f"🎵 Found {len(input_files)} audio files to process.")
-        else:
-             print("❌ No input directory provided. Use --video-dir or --audio-dir.")
-             sys.exit(1)
+        audio_files = discover_media_files(args.video_dir, args.pattern, args.recursive)
+        print(f"Found {len(audio_files)} audio files to process.")
+
     except (FileNotFoundError, NotADirectoryError, ValueError) as e:
-        print(f"❌ Error discovering input files: {e}")
+        print(f" Error discovering audios: {e}")
         sys.exit(1)
 
     unified_refs = []
@@ -938,20 +632,17 @@ def main():
         print(f"❌ No unified reference files found.")
         sys.exit(1)
 
-    if processing_mode == 'video' and args.output_resolutions:
+    if args.output_resolutions:
         print(f" ABR Rendition mode enabled. Resolutions to be generated: {sorted(list(args.output_resolutions), reverse=True)}")
-    elif processing_mode == 'video':
-        print(" Single-file trim mode enabled for video.")
-    
-    if processing_mode == 'audio' and args.output_resolutions:
-        print(" Note: --output-resolutions is ignored for audio-only processing.")
+    else:
+        print(" Single-file trim mode enabled.")
 
-
-    print(f"🎬 Processing {len(input_files)} {processing_mode} files against {len(unified_refs)} unified references.")
+    print(f"Processing {len(audio_files)} audios against {len(unified_refs)} unified references.")
 
     start_time = time.time()
     for unified_ref in unified_refs:
-        process_against_single_unified(input_files, unified_ref, processing_mode, args)
+        process_against_single_unified_audio(audio_files, unified_ref, args)
+
 
     print(f"\n\n⏱️ Total processing time: {time.time() - start_time:.2f}s")
 
