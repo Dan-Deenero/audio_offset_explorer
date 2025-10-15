@@ -11,7 +11,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="cupcake">
       <body
-        className=""
+        className="bg-gray-200/50 h-screen"
       >
         {children}
       </body>

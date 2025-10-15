@@ -5,6 +5,7 @@ import path from "path";
 import { spawn } from "child_process";
 import fs from "fs/promises";
 import { mkdirSync, existsSync } from "fs";
+import { setProcess, clearProcess, getWasStoppedByUser } from "./processManager";
 
 // Helper: delete directory safely
 async function cleanupDir(dirPath: string) {
@@ -92,6 +93,7 @@ export async function POST(req: Request) {
     console.log("▶️ Running Python CLI:", ["python", ...args].join(" "));
 
     const python = spawn("python", args, { signal: controller.signal });
+    setProcess(python); // make sure to register the process
 
     let stdout = "";
     let stderr = "";
@@ -111,7 +113,7 @@ export async function POST(req: Request) {
     const exitCode: number = await new Promise((resolve) => {
       python.on("close", resolve);
     });
-
+    clearProcess(); // 👈 clean up after process finishes
     clearTimeout(timeout);
 
     if (controller.signal.aborted) {
@@ -128,8 +130,19 @@ export async function POST(req: Request) {
     }
 
     if (exitCode !== 0) {
+      const stoppedByUser = getWasStoppedByUser();
+
       await cleanupDir(candidatesDir);
       await cleanupDir(referenceDir);
+
+      if (stoppedByUser) {
+        // Return 200 OK — not an error
+        return NextResponse.json({
+          canceled: true,
+          logs: [...liveLogs.slice(-20), "🛑 Process stopped by user"],
+        }, { status: 200 });
+      }
+
       return NextResponse.json(
         {
           error: "Python script failed.",
@@ -139,6 +152,7 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
 
     // Read and parse report
     const files = await fs.readdir(outputDir);
@@ -191,7 +205,7 @@ export async function POST(req: Request) {
     }
 
     const results = (reportData.items || []).map((item: any) => ({
-      filename: item.video_file,
+      filename: item.source_file,
       decision: item.decision,
       offset: item.final_offset_seconds ?? 0,
       confidence: item.confidence ?? 0,

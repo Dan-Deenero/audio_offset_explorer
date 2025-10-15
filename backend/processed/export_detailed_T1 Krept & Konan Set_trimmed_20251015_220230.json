@@ -276,126 +276,42 @@
     },
     {
       "source_file": "IMG_0354 saleisha rose.wav",
-      "status": "success",
-      "decision": "red",
-      "confidence": 4.08695035624858,
-      "raw_offset_seconds": -79.88266666666667,
-      "final_offset_seconds": -80,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 5.710666666666667,
-        "final": 5.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     },
     {
       "source_file": "IMG_0361 saleisha rose.wav",
-      "status": "success",
-      "decision": "green",
-      "confidence": 48.637772085919956,
-      "raw_offset_seconds": -312.9173333333333,
-      "final_offset_seconds": -313,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 7.3360625,
-        "final": 7.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     },
     {
       "source_file": "IMG_0362 saleisha rose.wav",
-      "status": "success",
-      "decision": "green",
-      "confidence": 52.46445798375299,
-      "raw_offset_seconds": -363.744,
-      "final_offset_seconds": -364,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 6.871666666666667,
-        "final": 6.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     },
     {
       "source_file": "IMG_0363 saleisha rose.wav",
-      "status": "success",
-      "decision": "green",
-      "confidence": 71.28615099646403,
-      "raw_offset_seconds": -372.0106666666667,
-      "final_offset_seconds": -373,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 12.514125,
-        "final": 11.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     },
     {
       "source_file": "IMG_0364 saleisha rose.wav",
-      "status": "success",
-      "decision": "red",
-      "confidence": 5.542363236296752,
-      "raw_offset_seconds": -9.493333333333334,
-      "final_offset_seconds": -10,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 2.065125,
-        "final": 1.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     },
     {
       "source_file": "IMG_0367 saleisha rose.wav",
-      "status": "success",
-      "decision": "red",
-      "confidence": 9.332382994595557,
-      "raw_offset_seconds": -161.68533333333335,
-      "final_offset_seconds": -162,
-      "aligned_renditions": null,
-      "aligned_video_file": null,
-      "aligned_audio_file": null,
-      "tags": [
-        "UGC"
-      ],
-      "level_used": "Single (20 peaks/sec)",
-      "durations": {
-        "original": 2.3205625,
-        "final": 2.0
-      }
+      "status": "failed",
+      "error": "Could not read audio info"
     }
   ],
   "summary": {
     "total": 20,
-    "successful": 20,
-    "failed": 0,
-    "green": 5,
+    "successful": 14,
+    "failed": 6,
+    "green": 2,
     "yellow": 5,
-    "red": 10
+    "red": 7
   },
   "parameters": {
     "video_dir": null,

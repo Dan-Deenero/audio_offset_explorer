@@ -9,10 +9,10 @@ type Props = {
 
 export default function Filters({ decision, setDecision, minConfidence, setMinConfidence }: Props) {
   return (
-    <div className="p-3 border border-neutral-content rounded bg-white flex items-center gap-4">
+    <div className="p-3 mb-4 border rounded-sm border-neutral-content bg-base-100 flex items-center gap-4">
       <div className="w-1/4">
         <label className="block text-sm font-medium">Decision</label>
-        <select value={decision} onChange={(e) => setDecision(e.target.value as any)} className="select select-lg">
+        <select value={decision} onChange={(e) => setDecision(e.target.value as any)} className="select select-sm select-ghost p-2 rounded ">
           <option value="all">All</option>
           <option value="green">Green</option>
           <option value="yellow">Yellow</option>
@@ -28,7 +28,8 @@ export default function Filters({ decision, setDecision, minConfidence, setMinCo
           max={100}
           value={minConfidence}
           onChange={(e) => setMinConfidence(Number(e.target.value))}
-          className="mt-2"
+          className="mt-2 text-black"
+          
         />
       </div>
     </div>

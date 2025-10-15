@@ -3,7 +3,7 @@ import { spawn } from "child_process";
 import path from "path";
 
 export async function GET() {
-  const encoder = new TextEncoder();
+  const encoder = new TextEncoder();z
 
   const stream = new ReadableStream({
     start(controller) {

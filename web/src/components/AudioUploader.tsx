@@ -113,7 +113,7 @@ export default function FileUpload({
                 onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                 onDragLeave={() => setDragActive(false)}
                 onDrop={(e) => handleDrop(e, "reference")}
-                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${dragActive ? "border-primary bg-base-200" : "border-gray-300"
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${dragActive ? "border-primary bg-base-200" : "border-gray-300 bg-base-100"
                     } w-full`}
                 onClick={() => referenceInputRef.current?.click()}
             >
@@ -159,7 +159,7 @@ export default function FileUpload({
                 onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                 onDragLeave={() => setDragActive(false)}
                 onDrop={(e) => handleDrop(e, "candidates")}
-                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${dragActive ? "border-primary bg-base-200" : "border-gray-300"
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${dragActive ? "border-primary bg-base-200" : "border-gray-300 bg-base-100"
                     } w-full`}
                 onClick={() => candidatesInputRef.current?.click()}
             >
