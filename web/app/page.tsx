@@ -156,6 +156,7 @@ export default function Page() {
           Last run: {new Date(response.generatedAt).toLocaleString()}
         </div>
       )}
+      </div>
 
       {error && (
         <div className="toast toast-top toast-center">
@@ -189,9 +190,6 @@ export default function Page() {
 
       {response && (
         <>
-          <section className="mb-6">
-
-          </section>
           <section className="mb-6">
             <div className="flex items-center gap-3 mb-3">
               <h2 className="text-lg font-semibold">
@@ -242,5 +240,5 @@ export default function Page() {
         </div>
       </section>
     </div>
-  );
+  )
 }

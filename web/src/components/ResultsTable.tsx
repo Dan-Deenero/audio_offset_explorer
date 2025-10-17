@@ -24,6 +24,7 @@ export default function ResultsTable({ results, referenceFile, onPlayCandidate }
             <th className="p-2">Offset (s)</th>
             <th className="p-2">Confidence</th>
             <th className="p-2">Actions</th>
+            <th className="p-2">Aligned Audio</th>
           </tr>
         </thead>
         <tbody>
@@ -33,9 +34,8 @@ export default function ResultsTable({ results, referenceFile, onPlayCandidate }
                 <td className="p-2">{r.filename}</td>
                 <td className="p-2">
                   <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      r.decision === "green" ? "bg-green-100 text-green-700" : r.decision === "yellow" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-2 py-1 rounded text-sm ${r.decision === "green" ? "bg-green-100 text-green-700" : r.decision === "yellow" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {r.decision}
                   </span>
@@ -46,17 +46,19 @@ export default function ResultsTable({ results, referenceFile, onPlayCandidate }
                   <button className="mr-2 text-sm underline" onClick={() => toggle(r.filename)}>
                     {expanded[r.filename] ? "Hide" : "Details"}
                   </button>
-                  {onPlayCandidate && (
-                    <button
-                      className="text-sm border px-2 py-1 rounded"
-                      onClick={() => {
-                        // Backend doesn't return candidate file URLs — frontend local preview (if present) handled at Page level.
-                        // If you host uploaded candidates and return URLs, you can play them via <audio src=...>.
-                        alert("Local preview available before upload. After analysis, implement candidate streaming if desired.");
-                      }}
-                    >
-                      Preview
-                    </button>
+                </td>
+                <td className="p-2">
+                  {r.aligned_audio_rel ? (
+                    <>
+                      <audio controls className="w-48">
+                        <source src={r.aligned_audio_rel} />
+                      </audio>
+                      <a href={r.aligned_audio_rel} download className="text-xs link">
+                        Download
+                      </a>
+                    </>
+                  ) : (
+                    <span className="text-gray-400 italic">No aligned audio</span>
                   )}
                 </td>
               </tr>
