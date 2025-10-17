@@ -14,11 +14,6 @@ export default function ResultsTable({ results, referenceFile, onPlayCandidate }
 
   const toggle = (name: string) => setExpanded((s) => ({ ...s, [name]: !s[name] }));
 
-  const playLocalCandidate = (fileName: string) => {
-    // if the candidate was uploaded but is only local in the browser page, we cannot reference it by name;
-    // the page.tsx provides a play callback for local preview. If not present, ignore.
-  };
-
   return (
     <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
       <table className="w-full text-left table">
@@ -45,7 +40,7 @@ export default function ResultsTable({ results, referenceFile, onPlayCandidate }
                     {r.decision}
                   </span>
                 </td>
-                <td className="p-2">{r.offset}</td>
+                <td className="p-2">{r.offset}s</td>
                 <td className="p-2">{r.confidence.toFixed(1)}%</td>
                 <td className="p-2">
                   <button className="mr-2 text-sm underline" onClick={() => toggle(r.filename)}>
