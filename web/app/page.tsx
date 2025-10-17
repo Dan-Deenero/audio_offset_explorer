@@ -131,26 +131,25 @@ export default function Page() {
         candidateFiles={candidateFiles}
         setCandidateFiles={setCandidateFiles} />
 
-      <div className="flex justify-center gap-3">
-        {loading ? (
-          <>
-            <button className="btn rounded btn-disabled">
-              <span className="loading loading-spinner"></span>
-              Running analysis…
+      {/* Controls Section */}
+      <div className="card bg-base-100 shadow-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="space-x-2">
+          {loading ? (
+            <>
+              <button className="btn btn-error" onClick={cancelAnalysis}>
+                Stop
+              </button>
+              <button className="btn loading" disabled>
+                Running analysis…
+              </button>
+            </>
+          ) : (
+            <button className="btn btn-primary" onClick={runAnalysis}>
+              Run Analysis
             </button>
-            <button className="btn btn-error rounded" onClick={cancelAnalysis}>
-              Stop
-            </button>
-          </>
-        ) : (
-          <button className="btn btn-primary text-black rounded" onClick={runAnalysis}>
-            Run Analysis
-          </button>
-        )}
-        <button className="btn btn-outline rounded" onClick={resetAll}>
-          Reset
-        </button>
-      </div>
+          )}
+          <button className="btn btn-outline" onClick={resetAll} disabled={loading}>Reset</button>
+        </div>
 
       {response && (
         <div className="text-sm text-gray-600">
